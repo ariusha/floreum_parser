@@ -77,15 +77,6 @@ they substantially complicate cross-device multiplexing, and cannot elegantly ha
 files above the namespace root. Hardlinks are not supported for similar reasons, but are supplanted
 in the Floreum system by `Link`s.
 
-### Cursor
-
-Controls the seeking/jumping of file content and directory entry cursors, relative to the current
-cursor position or the start/end of the file. Can be set to:
-- `Forward` (move forward relative to the cursor's current position),
-- `Backward` (move backwards, similar but opposite to `Forward`),
-- `Start` (move to an absolute position relative to the start of the file), or
-- `End` (move relative to the end of the file, similar but opposite to `Start`).
-
 ### OpenOptions
 
 Controls how a file is opened. If `read`, bytes can be read from the file using a cursor. If
@@ -183,28 +174,17 @@ Remove a file such that `descriptor` no longer has a child named `name`. Will in
 to that name, or if `name` refers to a link, will remove that link while leaving the source file
 present. Requires `write` and `resize` permissions from `descriptor`.
 
-### Read(descriptor: u64, length: u64) -> content: \[u8\]
+### Read(descriptor: u64, offset: u64, length: u64) -> content: \[u8\]
 
-Read up to `length` bytes from `descriptor`. May require multiple calls if the first call does not
-return `length` bytes, but this may also indicate that no data is left to read. Requires `read`
-permissions from `descriptor`.
+Read up to `length` bytes from `descriptor`, starting from `offset`. May require multiple calls if
+the first call does not return `length` bytes, but this may also indicate that no data is left to
+read. Requires `read` permissions from `descriptor`.
 
-### Write(descriptor: u64, content: \[u8\]) -> length: u64
+### Write(descriptor: u64, offset: u64, content: \[u8\]) -> length: u64
 
-Write `content` to `descriptor`, returning the length of bytes that were actually written. May
-require multiple calls if the first call does not write all of `content`, but this may also indicate
-that the device cannot accept any more data.
-
-### Seek(descriptor: u64, cursor: Cursor, offset: u64) -> ()
-
-Move `descriptor`'s cursor by `offset` to a position relative to `cursor` (that is; forwards from
-the current position, backwards, offset from the start, or from the end). This offset is in terms of
-bytes, for files, or `Entry`-ies, for directories.
-
-### Tell(descriptor: u64) -> offset: u64
-
-Get the offset of `descriptor`'s cursor relative to the start of the file. This offset is in terms
-of bytes, for files, or `Entry`-ies, for directories.
+Write `content` to `descriptor`, starting from `offset`, returning the length of bytes that were
+actually written. May require multiple calls if the first call does not write all of `content`, but
+this may also indicate that the device cannot accept any more data.
 
 ### Copy(from: u64, to: u64, length: u64) -> length: u64
 

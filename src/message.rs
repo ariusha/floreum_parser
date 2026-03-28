@@ -1,4 +1,4 @@
-use crate::{SeekFrom, Entry, FileType, Metadata, OpenOptions, Permit, error::FloreumError};
+use crate::{Entry, FileType, Metadata, OpenOptions, Permit, error::FloreumError};
 use core::marker::PhantomData;
 use serde::{Deserialize, Serialize};
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -45,7 +45,8 @@ pub struct ResponseSetmeta {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct RequestList {
     pub descriptor: u64,
-    pub length: u64,
+    pub offset: u64,
+    pub count: u64,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ResponseList<N: AsRef<str>, E: AsRef<[Entry<N>]>> {
@@ -63,7 +64,8 @@ pub struct ResponseRemove {}
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct RequestRead {
     pub descriptor: u64,
-    pub length: u64,
+    pub offset: u64,
+    pub count: u64,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ResponseRead<C: AsRef<[u8]>> {
@@ -73,20 +75,12 @@ pub struct ResponseRead<C: AsRef<[u8]>> {
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct RequestWrite<C: AsRef<[u8]>> {
     pub descriptor: u64,
+    pub offset: u64,
     pub content: C,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ResponseWrite {
     pub error: Option<(u64, FloreumError)>,
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct RequestSeek {
-    pub descriptor: u64,
-    pub from: SeekFrom,
-}
-#[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct ResponseSeek {
-    pub offset: u64,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct RequestCopy<N: AsRef<str>> {
@@ -95,7 +89,7 @@ pub struct RequestCopy<N: AsRef<str>> {
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct ResponseCopy {
-    pub length: u64,
+    pub count: u64,
 }
 #[derive(Debug, Clone, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct RequestLink<N: AsRef<str>> {
